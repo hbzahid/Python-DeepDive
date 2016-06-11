@@ -220,3 +220,94 @@ print (prefix_sum_2d([[5,6,3,7,8],
 print (powerset([1,2,3]))
 print (len(powerset([1,2,3,4,5])))
 print (second_max([7,3,3,7,6,4,2]))
+
+def combinations(iterable, r):
+    # combinations('ABCD', 2) --> AB AC AD BC BD CD
+    # combinations(range(4), 3) --> 012 013 023 123
+    pool = tuple(iterable)
+    n = len(pool)
+    if r > n:
+        return
+    indices = range(r)
+    yield tuple(pool[i] for i in indices)
+    while True:
+        for i in reversed(range(r)):
+            if indices[i] != i + n - r:
+                break
+        else:
+            return
+        indices[i] += 1
+        for j in range(i+1, r):
+            indices[j] = indices[j-1] + 1
+        yield tuple(pool[i] for i in indices)
+
+"""
+[1,2,3,4], 2 -> [1,2], [1,3], [1,4], [2,3], [2,4], [3,4]
+[1], [2], [3], [4]
+"""
+def combinations(A, K):
+    if not K: return [[]]
+    if not A: return []
+    head = [A[0]]
+    tail = A[1:]
+    chosen = [head + lt for lt in combinations(tail, K-1)]
+    chosen.extend(combinations(tail, K))
+    return chosen
+
+def insert(elt, lst):
+    result = []
+    for i in range(len(lst)+1):
+        new = lst[:]
+        new.insert(i, elt)
+        result.append(new)
+    return result
+
+def permutations(A):
+    if not A: return [[]]
+    head = A[0]
+    tail = A[1:]
+    result = []
+    p = permutations(tail)
+    for each in p:
+        result.extend(insert(head, each))
+    return result
+
+def permutations2(A):
+    if len(A) == 0: return []
+    elif len(A) == 1: return [A]
+    else:
+        l = []
+        for i in range(len(A)):
+            elt = A[i]
+            rest = A[:i] + A[i+1:]
+            for p in permutations2(rest):
+                l.append([elt]+p)
+        return l
+
+def increment_num(lst):
+    number = 0
+    for i, n in enumerate(reversed(lst)):
+        number += n * (10**i)
+    return number + 1
+
+print increment_num([9,9])
+
+def water_trapped(heights):
+    total = 0
+    larger_before = preprocess(heights)
+    larger_after = preprocess(list(reversed(heights)))
+    for i in range(len(heights)):
+        amount = min(larger_before[i], larger_after[-i-1]) - heights[i]
+        total += amount if amount > 0 else 0
+    return total
+
+def preprocess(heights):
+    larger_before = []
+    highest = 0
+    for j in range(len(heights)):
+        larger_before.append(highest)
+        if heights[j] > highest:
+            highest = heights[j]
+    return larger_before
+
+print "water amount = " + str(water_trapped([0, 1, 0, 2, 1, 0, 1, 3, 2, 1, 2, 1]))
